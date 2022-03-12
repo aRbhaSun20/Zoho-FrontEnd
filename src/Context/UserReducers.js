@@ -1,0 +1,23 @@
+export const USER_ACTIONS = {
+  LOGIN: "login",
+  LOGOUT: "logout",
+};
+
+const getData = () => {
+  const user = localStorage.getItem("zohoUser");
+  if (user) return JSON.parse(user);
+  return {};
+};
+
+export const UserReducers = (InitialState = getData(), actions) => {
+  switch (actions.type) {
+    case USER_ACTIONS.LOGIN:
+      localStorage.setItem("zohoUser", JSON.stringify(actions.payload));
+      return actions.payload;
+    case USER_ACTIONS.LOGOUT:
+      localStorage.removeItem("zohoUser");
+      return {};
+    default:
+      return InitialState;
+  }
+};
