@@ -18,6 +18,8 @@ import { makeStyles } from "@mui/styles";
 import AddContact from "./AddContact";
 import { useContacts } from "../../Context/ServerState";
 import { useSelector } from "react-redux";
+import EditContact from "./EditContact";
+import DeleteContact from "./DeleteContact";
 const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
@@ -53,6 +55,11 @@ const useStyles = makeStyles((theme) => ({
 export default function ContactDetails() {
   const classes = useStyles();
   const [addContact, setAddContact] = useState(false);
+  const [selectedContact, setSelectedContact] = useState({
+    _id: "",
+  });
+  const [editContact, setEditContact] = useState(false);
+  const [deleteContact, setDeleteContact] = useState(false);
   const user = useSelector((state) => state.user);
   const { data } = useContacts(user._id);
   return (
@@ -63,7 +70,7 @@ export default function ContactDetails() {
           width: "98%",
           margin: "0 auto",
           borderRadius: "1rem",
-          height: "66vh",
+          height: "89vh",
         }}
       >
         <AppBar
@@ -147,10 +154,22 @@ export default function ContactDetails() {
                         width: "75%",
                       }}
                     >
-                      <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
+                      <IconButton
+                        onClick={() => {
+                          setEditContact(true);
+                          setSelectedContact((state) => ({ ...state, ...row }));
+                        }}
+                        style={{ width: "3.5rem", height: "3.5rem" }}
+                      >
                         <Edit style={{ fonSize: "1.5rem" }} />
                       </IconButton>
-                      <IconButton style={{ width: "3.5rem", height: "3.5rem" }}>
+                      <IconButton
+                        onClick={() => {
+                          setDeleteContact(true);
+                          setSelectedContact((state) => ({ ...state, ...row }));
+                        }}
+                        style={{ width: "3.5rem", height: "3.5rem" }}
+                      >
                         <Delete style={{ fontSize: "1.5rem" }} />
                       </IconButton>
                     </TableCell>
@@ -161,6 +180,16 @@ export default function ContactDetails() {
         </TableContainer>
       </Paper>
       <AddContact openPopUp={addContact} setOpenPopUp={setAddContact} />
+      <EditContact
+        openPopUp={editContact}
+        setOpenPopUp={setEditContact}
+        editContent={selectedContact}
+      />
+      <DeleteContact
+        openPopUp={deleteContact}
+        setOpenPopUp={setDeleteContact}
+        _id={selectedContact._id}
+      />
     </React.Fragment>
   );
 }

@@ -1,8 +1,11 @@
-import { Button, Modal, Paper, TextField, Typography } from "@mui/material";
+import { Button, Modal, Paper, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useAddContacts, useContacts } from "../../Context/ServerState";
+import {
+  useContacts,
+  useDeleteContacts,
+} from "../../Context/ServerState";
 
 const style = {
   position: "absolute",
@@ -15,22 +18,16 @@ const style = {
   p: 4,
 };
 let handle = false;
-export default function AddContact({ openPopUp, setOpenPopUp }) {
+export default function DeleteContact({ openPopUp, setOpenPopUp, _id }) {
   const user = useSelector((state) => state.user);
 
   const [inputValue, setInputValue] = useState({
-    email: "",
-    phone: "",
-    name: "",
     handle: false,
   });
 
   const { enqueueSnackbar } = useSnackbar();
   const { refetch: contactRefetch } = useContacts(user._id);
-  const { refetch } = useAddContacts(user._id, inputValue, handle);
-
-  const handleChange = (e) =>
-    setInputValue((state) => ({ ...state, [e.target.name]: e.target.value }));
+  const { refetch } = useDeleteContacts(inputValue, handle,_id);
 
   const handleSubmit = (e) => {
     handle = true;
@@ -45,7 +42,7 @@ export default function AddContact({ openPopUp, setOpenPopUp }) {
           contactRefetch();
           handle = false;
           setInputValue((state) => ({ ...state, handle: false }));
-          enqueueSnackbar("New Contact Added", { variant: "success" });
+          enqueueSnackbar("Contact Removed", { variant: "success" });
         }
       });
     }
@@ -66,10 +63,10 @@ export default function AddContact({ openPopUp, setOpenPopUp }) {
           style={{
             display: "grid",
             gridTemplateRows: ".5fr 1.5fr .5fr",
-            height: "45vh",
+            height: "20vh",
             gridGap: "1rem",
             borderRadius: "1rem",
-            width: "25%",
+            width: "20%",
           }}
         >
           <div
@@ -87,7 +84,7 @@ export default function AddContact({ openPopUp, setOpenPopUp }) {
                 textAlign: "center",
               }}
             >
-              <b>Add New Contact Details</b>
+              <b>Delete Contact Details</b>
             </Typography>
           </div>
           <div
@@ -98,31 +95,7 @@ export default function AddContact({ openPopUp, setOpenPopUp }) {
               flexDirection: "column",
             }}
           >
-            <TextField
-              variant="outlined"
-              label="Username"
-              name="name"
-              onChange={handleChange}
-              value={inputValue.name}
-              style={{ width: 400 }}
-            />
-            <TextField
-              variant="outlined"
-              name="phone"
-              onChange={handleChange}
-              value={inputValue.phone}
-              label="Phone Number"
-              style={{ width: 400 }}
-            />{" "}
-            <TextField
-              variant="outlined"
-              label="Email"
-              type="email"
-              name="email"
-              onChange={handleChange}
-              value={inputValue.email}
-              style={{ width: 400 }}
-            />
+            <Typography>Confirm To Delete Contact</Typography>
           </div>
           <div
             style={{
@@ -131,6 +104,7 @@ export default function AddContact({ openPopUp, setOpenPopUp }) {
               alignItems: "center",
             }}
           >
+            {" "}
             <Button
               variant="outlined"
               style={{
@@ -157,7 +131,7 @@ export default function AddContact({ openPopUp, setOpenPopUp }) {
               }}
               onClick={handleSubmit}
             >
-              Submit
+              Confirm
             </Button>
           </div>
         </Paper>

@@ -108,9 +108,6 @@ export const useAddContacts = (userId, inputValue, handle) => {
               email: "${inputValue.email}"
             ) {
               _id
-              userId
-              createdAt
-              name
             }
           }
         `
@@ -124,6 +121,71 @@ export const useAddContacts = (userId, inputValue, handle) => {
         inputValue.email !== "" &&
         inputValue.password !== "" &&
         inputValue.name !== "",
+    }
+  );
+};
+
+export const useEditContacts = (inputValue, handle) => {
+  return useQuery(
+    "edit contact",
+    async () => {
+      if (
+        handle &&
+        inputValue._id !== "" &&
+        inputValue.email !== "" &&
+        inputValue.password !== "" &&
+        inputValue.name !== ""
+      ) {
+        const { signUpUser } = await request(
+          endpoint,
+          gql`
+          mutation {
+            editContact(
+              _id: "${inputValue._id}"
+              name: "${inputValue.name}"
+              phone: "${inputValue.phone}"
+              email: "${inputValue.email}"
+            ) {
+              _id
+            }
+          }
+        `
+        );
+        return signUpUser;
+      }
+    },
+    {
+      enabled:
+        inputValue.email !== "" &&
+        inputValue._id !== "" &&
+        inputValue.password !== "" &&
+        inputValue.name !== "",
+    }
+  );
+};
+
+export const useDeleteContacts = (inputValue, handle, _id) => {
+  return useQuery(
+    "delete contact",
+    async () => {
+      if (handle && _id !== "") {
+        const { deleteContact } = await request(
+          endpoint,
+          gql`
+          mutation {
+            deleteContact(
+              _id: "${_id}"
+            ) {
+              _id
+            }
+          }
+        `
+        );
+        return deleteContact;
+      }
+    },
+    {
+      enabled: inputValue.email !== "" && _id !== "",
     }
   );
 };
