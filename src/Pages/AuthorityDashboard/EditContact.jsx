@@ -23,8 +23,6 @@ export default function EditContact({ openPopUp, setOpenPopUp, editContent }) {
     ...editContent,
   });
 
-  console.log(editContent);
-
   const { enqueueSnackbar } = useSnackbar();
   const { refetch: contactRefetch } = useContacts(user._id);
   const { refetch } = useEditContacts(inputValue, handle);
@@ -51,6 +49,10 @@ export default function EditContact({ openPopUp, setOpenPopUp, editContent }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue.handle]);
+
+  useEffect(() => {
+    setInputValue((state) => ({ ...state, ...editContent }));
+  }, [editContent]);
 
   return (
     <React.Fragment>
