@@ -1,21 +1,29 @@
 import React from "react";
-import {  Typography } from "@mui/material";
+import { Avatar, Typography } from "@mui/material";
+import { useSelector } from "react-redux";
 
 export default function NavbarAfter() {
+  const user = useSelector((state) => state.user);
   return (
     <React.Fragment>
       <div
         style={{
           display: "grid",
           backgroundColor: "#F4F4FC",
-          gridTemplateColumns: "5fr 1fr",
           width: "96%",
           borderBottom: "1px solid lightgray",
           margin: "auto",
-          height: "10vh",padding:"0 2rem"
+          height: "10vh",
+          padding: "0 2rem",
         }}
       >
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 6fr" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -31,6 +39,9 @@ export default function NavbarAfter() {
               Arnav
             </Typography>
           </div>
+          <Avatar style={{ textTransform: "uppercase" }}>
+            {user.email.slice(0, 1)}
+          </Avatar>
         </div>
       </div>
     </React.Fragment>

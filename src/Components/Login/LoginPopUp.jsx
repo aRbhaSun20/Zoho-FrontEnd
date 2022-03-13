@@ -32,7 +32,7 @@ export default function LoginPopUp({ setSignUp }) {
     handle: false,
   });
   const { enqueueSnackbar } = useSnackbar();
-  const { data, refetch } = useLogin(inputValue, handle);
+  const { refetch } = useLogin(inputValue, handle);
 
   const handleChange = (e) =>
     setInputValue((state) => ({ ...state, [e.target.name]: e.target.value }));

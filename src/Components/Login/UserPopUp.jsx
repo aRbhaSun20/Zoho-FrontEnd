@@ -32,7 +32,7 @@ export default function UserPopUp({ openPopUp, setOpenPopUp }) {
   const history = useNavigate();
   const dispatch = useDispatch();
 
-  const { data, refetch } = useSignUp(inputValue, handle);
+  const { refetch } = useSignUp(inputValue, handle);
 
   const handleChange = (e) =>
     setInputValue((state) => ({ ...state, [e.target.name]: e.target.value }));
