@@ -3,11 +3,11 @@ import { request, gql } from "graphql-request";
 
 export const endpoint = "https://zohodemo.herokuapp.com/graphql";
 
-export const useLogin = (inputValue) => {
+export const useLogin = (inputValue, handle) => {
   return useQuery(
     "login",
     async () => {
-      if (inputValue.email !== "" && inputValue.password !== "") {
+      if (handle && inputValue.email !== "" && inputValue.password !== "") {
         const { user } = await request(
           endpoint,
           gql`
@@ -27,13 +27,19 @@ export const useLogin = (inputValue) => {
   );
 };
 
-export const useSignUp = (inputValue) => {
+export const useSignUp = (inputValue, handle) => {
   return useQuery(
     "signup",
     async () => {
-      const { signUpUser } = await request(
-        endpoint,
-        gql`
+      if (
+        handle &&
+        inputValue.email !== "" &&
+        inputValue.password !== "" &&
+        inputValue.secret !== ""
+      ) {
+        const { signUpUser } = await request(
+          endpoint,
+          gql`
         mutation {
           signUpUser(email: "${inputValue.email}", password: "${inputValue.password}", secret: "${inputValue.secret}") {
             _id
@@ -42,8 +48,9 @@ export const useSignUp = (inputValue) => {
           }
         }
       `
-      );
-      return signUpUser;
+        );
+        return signUpUser;
+      }
     },
     {
       enabled:
@@ -55,10 +62,13 @@ export const useSignUp = (inputValue) => {
 };
 
 export const useContacts = (userId) => {
-  return useQuery("contacts", async () => {
-    const { contacts } = await request(
-      endpoint,
-      gql`
+  return useQuery(
+    "contacts",
+    async () => {
+      if (userId !== "") {
+        const { contacts } = await request(
+          endpoint,
+          gql`
         query {
           contacts(userId: "${userId}") {
             _id
@@ -68,16 +78,25 @@ export const useContacts = (userId) => {
           }
         }
       `
-    );
-    return contacts;
-  });
+        );
+        return contacts;
+      }
+    },
+    { enabled: userId !== "" }
+  );
 };
 
 export const useAddContacts = (userId, inputValue, handle) => {
   return useQuery(
     "add contact",
     async () => {
-      if (handle) {
+      if (
+        handle &&
+        userId !== "" &&
+        inputValue.email !== "" &&
+        inputValue.password !== "" &&
+        inputValue.name !== ""
+      ) {
         const { signUpUser } = await request(
           endpoint,
           gql`

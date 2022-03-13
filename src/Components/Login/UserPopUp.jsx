@@ -1,8 +1,9 @@
 import { Button, Modal, Paper, TextField, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
+import { NAV_ACTIONS } from "../../Context/NavigationReducers";
 import { useSignUp } from "../../Context/ServerState";
 import { USER_ACTIONS } from "../../Context/UserReducers";
 
@@ -17,39 +18,49 @@ const style = {
   p: 4,
 };
 
+let handle = false;
+
 export default function UserPopUp({ openPopUp, setOpenPopUp }) {
   const [inputValue, setInputValue] = useState({
     email: "",
     password: "",
     confirm: "",
     secret: "",
+    handle: false,
   });
   const { enqueueSnackbar } = useSnackbar();
   const history = useNavigate();
   const dispatch = useDispatch();
 
-  const { data, refetch } = useSignUp(inputValue);
+  const { data, refetch } = useSignUp(inputValue, handle);
 
   const handleChange = (e) =>
     setInputValue((state) => ({ ...state, [e.target.name]: e.target.value }));
 
   const handleSubmit = (e) => {
-    refetch()
-      .then((res) => {
+    handle = true;
+    setInputValue((state) => ({ ...state, handle: true }));
+  };
+
+  useEffect(() => {
+    if (inputValue.handle) {
+      refetch().then((res) => {
         if (res.isSuccess) {
           dispatch({
             type: USER_ACTIONS.LOGIN,
-            payload: data,
+            payload: res.data,
           });
+          handle = false;
+
+          setInputValue((state) => ({ ...state, handle: false }));
           setOpenPopUp(false);
-
-          history(`authoritydashboard`);
-
           enqueueSnackbar("User SignUp Successful", { variant: "success" });
+          history(`authoritydashboard`);
         }
-      })
-      .catch(() => {});
-  };
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputValue.handle]);
 
   return (
     <React.Fragment>
@@ -78,7 +89,7 @@ export default function UserPopUp({ openPopUp, setOpenPopUp }) {
               alignItems: "center",
             }}
           >
-            <Typography style={{ fontSize: 24 }}>User Registration</Typography>
+            <Typography style={{ fontSize: 24 }}>Sign Up</Typography>
           </div>
           <div
             style={{
@@ -140,6 +151,7 @@ export default function UserPopUp({ openPopUp, setOpenPopUp }) {
                 justifyContent: "space-around",
                 alignItems: "center",
                 width: "75%",
+                paddingBottom: ".5rem",
               }}
             >
               <Button
@@ -154,15 +166,33 @@ export default function UserPopUp({ openPopUp, setOpenPopUp }) {
                 }}
                 onClick={handleSubmit}
               >
-                Register
+                Sign Up
               </Button>
+            </div>{" "}
+            <div
+              onClick={() => {
+                setOpenPopUp(false);
+                dispatch({
+                  type: NAV_ACTIONS.NAV_CHANGE,
+                  payload: { loginPopUp: true },
+                });
+              }}
+            >
+              Already have an account ?
+              <span
+                style={{
+                  color: "blue",
+                  cursor: "pointer",
+                  paddingLeft: ".5rem",
+                }}
+              >
+                Sign In
+              </span>
             </div>
-
             <Typography style={{ fontSize: ".7rem", textAlign: "center" }}>
-              Please upload the relevant document for emergency situations for
-              the choice of transport in case of failure .. this data will be
-              secure and only used to treat you effectively
-            </Typography>
+              By clickingon "Sign Up" button you are creating an account and you
+              agree to the Terms of use.
+            </Typography>{" "}
           </div>
         </Paper>
       </Modal>

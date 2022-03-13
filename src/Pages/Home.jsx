@@ -157,7 +157,7 @@ export default function Home() {
         </div>
       </div>
 
-      <LoginPopUp />
+      <LoginPopUp setSignUp={setSignUp}/>
       <UserPopUp openPopUp={signUp} setOpenPopUp={setSignUp} />
     </React.Fragment>
   );

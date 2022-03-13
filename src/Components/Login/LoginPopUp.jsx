@@ -1,6 +1,6 @@
 import { Button, Modal, Paper, TextField, Typography } from "@mui/material";
 import { useSnackbar } from "notistack";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import PeopleLogo from "../../assets/people-logo.png";
@@ -19,7 +19,9 @@ const style = {
   p: 4,
 };
 
-export default function LoginPopUp() {
+let handle = false;
+
+export default function LoginPopUp({ setSignUp }) {
   const history = useNavigate();
   const openPopUp = useSelector((state) => state.navigation);
   const dispatch = useDispatch();
@@ -27,40 +29,49 @@ export default function LoginPopUp() {
   const [inputValue, setInputValue] = useState({
     email: "",
     password: "",
+    handle: false,
   });
   const { enqueueSnackbar } = useSnackbar();
-  const { data, refetch } = useLogin(inputValue);
+  const { data, refetch } = useLogin(inputValue, handle);
 
   const handleChange = (e) =>
     setInputValue((state) => ({ ...state, [e.target.name]: e.target.value }));
 
   const handleSubmit = (e) => {
-    refetch().then((res) => {
-      if (res.isSuccess) {
-        history(`authoritydashboard`);
-        dispatch({
-          type: NAV_ACTIONS.NAV_CHANGE,
-          payload: { loginPopUp: false, loginStatus: true, ...data },
-        });
-        dispatch({
-          type: USER_ACTIONS.LOGIN,
-          payload: data,
-        });
-        enqueueSnackbar("User Login Successful", { variant: "success" });
-      }
-    });
+    handle = true;
+    setInputValue((state) => ({ ...state, handle: true }));
   };
 
+  useEffect(() => {
+    if (inputValue.handle) {
+      refetch().then((res) => {
+        if (res.isSuccess) {
+          handleCLose();
+          dispatch({
+            type: USER_ACTIONS.LOGIN,
+            payload: res.data,
+          });
+          handle = false;
+          setInputValue((state) => ({ ...state, handle: false }));
+          enqueueSnackbar("User Login Successful", { variant: "success" });
+          history(`authoritydashboard`);
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputValue.handle]);
+
+  const handleCLose = () => {
+    dispatch({
+      type: NAV_ACTIONS.NAV_CHANGE,
+      payload: { loginPopUp: false, loginType: "" },
+    });
+  };
   return (
     <React.Fragment>
       <Modal
         open={openPopUp.loginPopUp}
-        onClose={() =>
-          dispatch({
-            type: NAV_ACTIONS.NAV_CHANGE,
-            payload: { loginPopUp: false, loginType: "" },
-          })
-        }
+        onClose={handleCLose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -144,10 +155,23 @@ export default function LoginPopUp() {
               Login
             </Button>
             <Typography style={{ color: "blue" }}>Forget password ?</Typography>
-            <Typography>
+            <div
+              onClick={() => {
+                handleCLose();
+                setSignUp(true);
+              }}
+            >
               Don't have an account ?
-              <span style={{ color: "blue" }}>Sign Up</span>
-            </Typography>
+              <span
+                style={{
+                  color: "blue",
+                  cursor: "pointer",
+                  paddingLeft: ".5rem",
+                }}
+              >
+                Sign Up
+              </span>
+            </div>
           </div>
         </Paper>
       </Modal>
